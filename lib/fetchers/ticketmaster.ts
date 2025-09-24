@@ -10,11 +10,11 @@ export interface NormalizedEvent {
   lastSeenAtUtc: string;
 }
 
-
 interface FetchTicketmasterParams {
   city?: string;
   keyword?: string;
 }
+
 
 
 interface TicketmasterEvent {
@@ -63,10 +63,12 @@ export async function fetchTicketmasterEvents(
 
 
 
+
 export async function fetchTicketmasterEvents({
   city,
   keyword,
 }: FetchTicketmasterParams): Promise<NormalizedEvent[]> {
+
 
 
 
