@@ -2,23 +2,8 @@ import NextAuth, { type NextAuthOptions, type Session } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 // import AzureADProvider from "next-auth/providers/azure-ad";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaClient } from "@/app/generated/prisma";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import type { JWT } from "next-auth/jwt";
-
-const globalForPrisma = globalThis as typeof globalThis & {
-  prisma?: PrismaClient;
-};
-
-const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error", "warn"],
-  });
-
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-}
 
 const GOOGLE_SCOPES = [
   "openid",
