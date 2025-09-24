@@ -1,10 +1,23 @@
-import NextAuth, { NextAuthOptions, Session } from "next-auth";
+import NextAuth, { type NextAuthOptions, type Session } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+// import AzureADProvider from "next-auth/providers/azure-ad";
 import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaClient } from "@/app/generated/prisma";
 import type { JWT } from "next-auth/jwt";
 
-import prisma from "@/lib/prisma";
+const globalForPrisma = globalThis as typeof globalThis & {
+  prisma?: PrismaClient;
+};
+
+const prisma =
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error", "warn"],
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}
 
 const GOOGLE_SCOPES = [
   "openid",
@@ -24,7 +37,10 @@ interface ExtendedToken extends JWT {
   error?: string;
 }
 
-async function persistAccountTokens(providerAccountId: string, token: ExtendedToken) {
+async function persistAccountTokens(
+  providerAccountId: string,
+  token: ExtendedToken,
+) {
   const data: Record<string, unknown> = {};
 
   if (token.accessToken !== undefined) {
@@ -56,7 +72,9 @@ async function persistAccountTokens(providerAccountId: string, token: ExtendedTo
   });
 }
 
-async function refreshGoogleAccessToken(token: ExtendedToken): Promise<ExtendedToken> {
+async function refreshGoogleAccessToken(
+  token: ExtendedToken,
+): Promise<ExtendedToken> {
   try {
     if (!token.refreshToken) {
       throw new Error("No refresh token available");
@@ -128,17 +146,6 @@ async function refreshGoogleAccessToken(token: ExtendedToken): Promise<ExtendedT
   }
 }
 
-
-
-import NextAuth, { NextAuthOptions } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-
-import prisma from "@/lib/prisma";
-
-
-
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -152,10 +159,12 @@ export const authOptions: NextAuthOptions = {
           access_type: "offline",
         },
       },
-      client: {
-        redirect_uris: ["http://localhost:3000/api/auth/callback/google"],
-      },
     }),
+    // AzureADProvider({
+    //   clientId: process.env.AZURE_AD_CLIENT_ID ?? "",
+    //   clientSecret: process.env.AZURE_AD_CLIENT_SECRET ?? "",
+    //   tenantId: process.env.AZURE_AD_TENANT_ID ?? "",
+    // }),
   ],
   callbacks: {
     async jwt({ token, account }) {
@@ -176,7 +185,8 @@ export const authOptions: NextAuthOptions = {
           refreshToken: account.refresh_token ?? extendedToken.refreshToken,
           scope: account.scope ?? extendedToken.scope,
           expiresAt,
-          providerAccountId: account.providerAccountId ?? extendedToken.providerAccountId,
+          providerAccountId:
+            account.providerAccountId ?? extendedToken.providerAccountId,
           error: undefined,
         };
 
@@ -209,13 +219,6 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === "development",
-
-
-    }),
-  ],
-  secret: process.env.NEXTAUTH_SECRET,
-
-
 };
 
 const handler = NextAuth(authOptions);
