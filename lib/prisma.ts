@@ -1,6 +1,7 @@
 import { execSync } from "node:child_process";
 import { PrismaClient } from "@/app/generated/prisma";
 
+
 const globalForPrisma = globalThis as typeof globalThis & {
   prisma?: PrismaClient;
 };
