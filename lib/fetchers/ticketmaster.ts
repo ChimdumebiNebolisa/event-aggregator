@@ -10,6 +10,13 @@ export interface NormalizedEvent {
   lastSeenAtUtc: string;
 }
 
+
+interface FetchTicketmasterParams {
+  city?: string;
+  keyword?: string;
+}
+
+
 interface TicketmasterEvent {
   id?: string;
   name?: string;
@@ -48,10 +55,19 @@ interface TicketmasterResponse {
   };
 }
 
+
 export async function fetchTicketmasterEvents(
   city: string,
   keyword?: string,
 ): Promise<NormalizedEvent[]> {
+
+
+export async function fetchTicketmasterEvents({
+  city,
+  keyword,
+}: FetchTicketmasterParams): Promise<NormalizedEvent[]> {
+
+
   const apiKey = process.env.TICKETMASTER_API_KEY;
   if (!apiKey) {
     throw new Error('Missing Ticketmaster API key');
