@@ -17,12 +17,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const city = typeof req.query.city === "string" ? req.query.city : undefined;
   const keyword = typeof req.query.keyword === "string" ? req.query.keyword : undefined;
 
+
   if (!city) {
     return res.status(400).json({ error: "Missing city" });
   }
 
   try {
     const events = await fetchTicketmasterEvents(city, keyword);
+
+  try {
+    const events = await fetchTicketmasterEvents({ city, keyword });
+
     const { inserted, updated } = await upsertTicketmasterEventsForUser(userId, events);
 
     return res.status(200).json({ inserted, updated });
