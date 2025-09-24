@@ -1,5 +1,3 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
 /node_modules
 /.pnp
@@ -30,16 +28,17 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
-
-# vercel
+# env files (never commit secrets)
+/.env*
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 
-# Prisma
+# prisma - ignore local db files
 /prisma/*.db
 /prisma/*.db-journal
+
+# prisma client output (regenerated automatically)
+app/generated/
