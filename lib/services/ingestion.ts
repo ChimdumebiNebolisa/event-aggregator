@@ -60,6 +60,14 @@ export async function upsertTicketmasterEventsForUser(
       },
     } as const;
 
+
+    const record = await prisma.event.upsert({
+      where,
+      update: {
+        lastSeenAtUtc,
+      },
+      create: {
+
     const existing = await prisma.event.findUnique({ where });
 
     if (existing) {
@@ -75,11 +83,16 @@ export async function upsertTicketmasterEventsForUser(
 
     await prisma.event.create({
       data: {
+
         userId,
         uid: event.uid,
         source: event.source,
         title: sanitizeOptional(event.title) ?? "Untitled Event",
+
+        description: sanitizeOptional(event.description),
+
         description: sanitizeOptional(event.description ?? undefined),
+
         startUtc,
         venueName: sanitizeOptional(event.venueName),
         address: sanitizeOptional(event.address),
@@ -87,14 +100,33 @@ export async function upsertTicketmasterEventsForUser(
         lastSeenAtUtc,
       },
     });
+
+
+    if (record.createdAt.getTime() === record.updatedAt.getTime()) {
+      inserted += 1;
+    } else {
+      updated += 1;
+    }
+  }
+
+  console.log(
+    `Ticketmaster upsert summary for user ${userId}: ${inserted} inserted, ${updated} updated`,
+  );
+
+
     inserted += 1;
   }
+
 
   return { inserted, updated };
 }
 
 export async function ingestSampleTicketmasterEvents(userId: string): Promise<UpsertSummary> {
+
+  const events = await fetchTicketmasterEvents("Dallas", "music");
+
   const events = await fetchTicketmasterEvents({ city: "Dallas", keyword: "music" });
+
   const result = await upsertTicketmasterEventsForUser(userId, events);
   console.log(
     `Ticketmaster ingestion completed for user ${userId}: ${result.inserted} inserted, ${result.updated} updated`,
