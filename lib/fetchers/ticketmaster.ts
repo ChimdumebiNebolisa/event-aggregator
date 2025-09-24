@@ -61,10 +61,12 @@ export async function fetchTicketmasterEvents(
   keyword?: string,
 ): Promise<NormalizedEvent[]> {
 
+
 export async function fetchTicketmasterEvents({
   city,
   keyword,
 }: FetchTicketmasterParams): Promise<NormalizedEvent[]> {
+
 
   const apiKey = process.env.TICKETMASTER_API_KEY;
   if (!apiKey) {
