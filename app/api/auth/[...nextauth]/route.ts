@@ -3,6 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 // import AzureADProvider from "next-auth/providers/azure-ad";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { PrismaClient } from "@/app/generated/prisma";
+import { PrismaClient } from "@prisma/client";
 import type { JWT } from "next-auth/jwt";
 
 const globalForPrisma = globalThis as typeof globalThis & {

@@ -42,3 +42,9 @@ next-env.d.ts
 
 # prisma client output (regenerated automatically)
 app/generated/
+
+# local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
