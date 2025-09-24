@@ -69,6 +69,7 @@ export async function upsertTicketmasterEventsForUser(
       create: {
 
 
+
     const existing = await prisma.event.findUnique({ where });
 
     if (existing) {
@@ -86,6 +87,7 @@ export async function upsertTicketmasterEventsForUser(
       data: {
 
 
+
         userId,
         uid: event.uid,
         source: event.source,
@@ -96,7 +98,11 @@ export async function upsertTicketmasterEventsForUser(
 
         description: sanitizeOptional(event.description),
 
+
+        description: sanitizeOptional(event.description),
+
         description: sanitizeOptional(event.description ?? undefined),
+
 
 
         startUtc,
@@ -121,8 +127,10 @@ export async function upsertTicketmasterEventsForUser(
 
 
 
+
     inserted += 1;
   }
+
 
 
 
@@ -136,7 +144,11 @@ export async function ingestSampleTicketmasterEvents(userId: string): Promise<Up
 
   const events = await fetchTicketmasterEvents("Dallas", "music");
 
+
+  const events = await fetchTicketmasterEvents("Dallas", "music");
+
   const events = await fetchTicketmasterEvents({ city: "Dallas", keyword: "music" });
+
 
 
   const result = await upsertTicketmasterEventsForUser(userId, events);

@@ -2,6 +2,7 @@ import NextAuth, { type NextAuthOptions, type Session } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 // import AzureADProvider from "next-auth/providers/azure-ad";
 import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaClient } from "@/app/generated/prisma";
 import { PrismaClient } from "@prisma/client";
 import type { JWT } from "next-auth/jwt";
 
