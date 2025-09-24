@@ -127,6 +127,15 @@ async function refreshGoogleAccessToken(token: ExtendedToken): Promise<ExtendedT
   }
 }
 
+
+import NextAuth, { NextAuthOptions } from "next-auth";
+import GoogleProvider from "next-auth/providers/google";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+
+import prisma from "@/lib/prisma";
+
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -197,6 +206,11 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === "development",
+
+    }),
+  ],
+  secret: process.env.NEXTAUTH_SECRET,
+
 };
 
 const handler = NextAuth(authOptions);
