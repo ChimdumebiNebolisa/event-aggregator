@@ -1,6 +1,10 @@
 export interface NormalizedEvent {
   uid: string;
+
   source: "googlecal" | "eventbrite" | "ticketmaster" | "manual";
+
+  source: "ticketmaster";
+
   title: string;
   description?: string;
   startUtc: string;
@@ -10,6 +14,7 @@ export interface NormalizedEvent {
   url?: string;
   lastSeenAtUtc: string;
 }
+
 
 interface TicketmasterVenueAddress {
   line1?: string;
@@ -29,6 +34,12 @@ interface TicketmasterVenue {
   country?: {
     name?: string;
   };
+}
+
+
+export interface FetchTicketmasterParams {
+  city: string;
+  keyword?: string;
 }
 
 interface TicketmasterEvent {
@@ -55,6 +66,7 @@ interface TicketmasterResponse {
     events?: TicketmasterEvent[];
   };
 }
+
 
 export async function fetchTicketmasterEvents(city: string, keyword?: string): Promise<NormalizedEvent[]> {
   const apiKey = process.env.TICKETMASTER_API_KEY;
@@ -108,4 +120,54 @@ export async function fetchTicketmasterEvents(city: string, keyword?: string): P
     console.error("Failed to fetch Ticketmaster events", error);
     return [];
   }
+
+export async function fetchTicketmasterEvents({
+  city,
+  keyword,
+}: FetchTicketmasterParams): Promise<NormalizedEvent[]> {
+  const apiKey = process.env.TICKETMASTER_API_KEY;
+  if (!apiKey) {
+    throw new Error("Missing Ticketmaster API key");
+  }
+
+  const url = new URL("https://app.ticketmaster.com/discovery/v2/events.json");
+  url.searchParams.set("apikey", apiKey);
+  url.searchParams.set("city", city);
+  if (keyword) {
+    url.searchParams.set("keyword", keyword);
+  }
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Ticketmaster API request failed with status ${response.status}`);
+  }
+
+  const data: TicketmasterResponse = await response.json();
+  const events = data._embedded?.events ?? [];
+  const seenAt = new Date().toISOString();
+
+  return events.map((event) => {
+    const venue = event._embedded?.venues?.[0];
+    const addressParts = [
+      venue?.address?.line1 ?? "",
+      venue?.address?.line2 ?? "",
+      venue?.city?.name ?? "",
+      venue?.state?.name ?? "",
+      venue?.postalCode ?? "",
+      venue?.country?.name ?? "",
+    ].filter((part) => part && part.trim() !== "");
+
+    return {
+      uid: event.id ?? "",
+      source: "ticketmaster" as const,
+      title: event.name ?? "",
+      description: event.description ?? event.info ?? undefined,
+      startUtc: event.dates?.start?.dateTime ?? "",
+      venueName: venue?.name ?? undefined,
+      address: addressParts.length > 0 ? addressParts.join(", ") : undefined,
+      url: event.url ?? undefined,
+      lastSeenAtUtc: seenAt,
+    } satisfies NormalizedEvent;
+  });
+
 }
