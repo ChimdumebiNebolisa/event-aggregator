@@ -5,11 +5,13 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 import type { JWT } from "next-auth/jwt";
 
+const GOOGLE_AUTHORIZATION_SCOPE = [
+
 const GOOGLE_SCOPES = [
   "openid",
   "email",
   "profile",
-  "https://www.googleapis.com/auth/calendar.events",
+  "https://www.googleapis.com/auth/calendar.readonly",
 ].join(" ");
 
 const GOOGLE_PROVIDER_ID = "google";
@@ -140,9 +142,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
       authorization: {
         params: {
-          scope: GOOGLE_SCOPES,
-          prompt: "consent",
-          access_type: "offline",
+          scope: GOOGLE_AUTHORIZATION_SCOPE,
         },
       },
     }),
