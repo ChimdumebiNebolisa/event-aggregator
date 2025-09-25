@@ -1,6 +1,10 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
+import prisma from "@/lib/prisma";
+
+const handler = NextAuth({
+
 import { PrismaClient } from "@/app/generated/prisma";
 
 const prisma = new PrismaClient();
@@ -141,6 +145,7 @@ async function refreshGoogleAccessToken(
 
 export const authOptions: NextAuthOptions = {
 
+
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
@@ -151,7 +156,11 @@ export const authOptions: NextAuthOptions = {
 
           scope: "openid email profile https://www.googleapis.com/auth/calendar.readonly",
 
+
+          scope: "openid email profile https://www.googleapis.com/auth/calendar.readonly",
+
           scope: GOOGLE_AUTHORIZATION_SCOPE,
+
 
         },
       },

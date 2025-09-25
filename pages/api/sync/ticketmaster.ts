@@ -28,7 +28,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const events = await fetchTicketmasterEvents(city, keyword);
 
+
+    const events = await fetchTicketmasterEvents(city, keyword);
+
     const events = await fetchTicketmasterEvents({ city, keyword });
+
 
 
     const { inserted, updated } = await upsertTicketmasterEventsForUser(userId, events);

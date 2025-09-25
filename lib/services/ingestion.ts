@@ -119,6 +119,7 @@ type TicketmasterFetchParams = {
 };
 
 
+
 export async function ingestSampleTicketmasterEvents(
   userId: string,
   params: TicketmasterFetchParams = { city: "Dallas", keyword: "music" },
@@ -130,6 +131,7 @@ export async function ingestSampleTicketmasterEvents(
   params: FetchTicketmasterParams = { city: "Dallas", keyword: "music" },
 ): Promise<UpsertSummary> {
   const events = await fetchTicketmasterEvents(params);
+
 
 
 export async function ingestSampleTicketmasterEvents(
