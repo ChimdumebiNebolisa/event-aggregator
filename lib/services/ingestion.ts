@@ -1,5 +1,9 @@
 import prisma from "@/lib/prisma";
-import { fetchTicketmasterEvents, type NormalizedEvent } from "@/lib/fetchers/ticketmaster";
+import {
+  fetchTicketmasterEvents,
+  type FetchTicketmasterParams,
+  type NormalizedEvent,
+} from "@/lib/fetchers/ticketmaster";
 
 function parseDate(value?: string): Date | null {
   if (!value) {
@@ -108,6 +112,7 @@ export async function upsertTicketmasterEventsForUser(
   return { inserted, updated };
 }
 
+
 type TicketmasterFetchParams = {
   city: string;
   keyword?: string;
@@ -118,6 +123,13 @@ export async function ingestSampleTicketmasterEvents(
   params: TicketmasterFetchParams = { city: "Dallas", keyword: "music" },
 ): Promise<UpsertSummary> {
   const events = await fetchTicketmasterEvents(params.city, params.keyword);
+
+export async function ingestSampleTicketmasterEvents(
+  userId: string,
+  params: FetchTicketmasterParams = { city: "Dallas", keyword: "music" },
+): Promise<UpsertSummary> {
+  const events = await fetchTicketmasterEvents(params);
+
   const result = await upsertTicketmasterEventsForUser(userId, events);
   console.log(
     `Ticketmaster ingestion completed for user ${userId}: ${result.inserted} inserted, ${result.updated} updated`,
