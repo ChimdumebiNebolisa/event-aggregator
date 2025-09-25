@@ -18,7 +18,7 @@ function parseDate(value?: string): Date | null {
   return date;
 }
 
-function sanitizeOptional(value?: string): string | null {
+function sanitizeOptional(value?: string | null): string | null {
   if (!value) {
     return null;
   }
@@ -32,7 +32,10 @@ export type UpsertSummary = {
   updated: number;
 };
 
-async function upsertTicketmasterEvent(userId: string, event: NormalizedEvent): Promise<"inserted" | "updated" | "skipped"> {
+async function upsertTicketmasterEvent(
+  userId: string,
+  event: NormalizedEvent,
+): Promise<"inserted" | "updated" | "skipped"> {
   if (!event.uid) {
     console.warn("Skipping Ticketmaster event with missing uid");
     return "skipped";
@@ -46,7 +49,9 @@ async function upsertTicketmasterEvent(userId: string, event: NormalizedEvent): 
 
   const lastSeenAtUtc = parseDate(event.lastSeenAtUtc);
   if (!lastSeenAtUtc) {
-    console.warn(`Skipping Ticketmaster event ${event.uid} due to invalid lastSeenAtUtc`);
+    console.warn(
+      `Skipping Ticketmaster event ${event.uid} due to invalid lastSeenAtUtc`,
+    );
     return "skipped";
   }
 
@@ -112,36 +117,16 @@ export async function upsertTicketmasterEventsForUser(
   return { inserted, updated };
 }
 
-
-type TicketmasterFetchParams = {
-  city: string;
-  keyword?: string;
-};
-
-
-
-export async function ingestSampleTicketmasterEvents(
-  userId: string,
-  params: TicketmasterFetchParams = { city: "Dallas", keyword: "music" },
-): Promise<UpsertSummary> {
-  const events = await fetchTicketmasterEvents(params.city, params.keyword);
-
 export async function ingestSampleTicketmasterEvents(
   userId: string,
   params: FetchTicketmasterParams = { city: "Dallas", keyword: "music" },
 ): Promise<UpsertSummary> {
   const events = await fetchTicketmasterEvents(params);
-
-
-
-export async function ingestSampleTicketmasterEvents(
-  userId: string,
-  params: TicketmasterFetchParams = { city: "Dallas", keyword: "music" },
-): Promise<UpsertSummary> {
-  const events = await fetchTicketmasterEvents(params.city, params.keyword);
   const result = await upsertTicketmasterEventsForUser(userId, events);
+
   console.log(
     `Ticketmaster ingestion completed for user ${userId}: ${result.inserted} inserted, ${result.updated} updated`,
   );
+
   return result;
 }
