@@ -9,6 +9,9 @@ export interface NormalizedEvent {
 
   source: "googlecal" | "eventbrite" | "ticketmaster" | "manual";
 
+
+  source: "googlecal" | "eventbrite" | "ticketmaster" | "manual";
+
   source: "ticketmaster";
 
 
@@ -22,7 +25,6 @@ export interface NormalizedEvent {
   url?: string;
   lastSeenAtUtc: string;
 }
-
 
 interface TicketmasterVenueAddress {
   line1?: string;
@@ -42,6 +44,7 @@ interface TicketmasterVenue {
   country?: {
     name?: string;
   };
+
 
 
 interface TicketmasterVenueAddress {
@@ -68,6 +71,7 @@ interface TicketmasterVenue {
 export interface FetchTicketmasterParams {
   city: string;
   keyword?: string;
+
 
 }
 
@@ -97,6 +101,7 @@ interface TicketmasterResponse {
 }
 
 export async function fetchTicketmasterEvents(city: string, keyword?: string): Promise<NormalizedEvent[]> {
+
   const apiKey = process.env.TICKETMASTER_API_KEY;
   if (!apiKey) {
     console.error("Missing Ticketmaster API key");
@@ -205,6 +210,7 @@ export async function fetchTicketmasterEvents(city: string, keyword?: string): P
 
 
 export async function fetchTicketmasterEvents(city: string, keyword?: string): Promise<NormalizedEvent[]> {
+
   const apiKey = process.env.TICKETMASTER_API_KEY;
   if (!apiKey) {
     console.error("Missing Ticketmaster API key");
@@ -255,6 +261,9 @@ export async function fetchTicketmasterEvents(city: string, keyword?: string): P
   } catch (error) {
     console.error("Failed to fetch Ticketmaster events", error);
     return [];
+
+  }
+
   }
 
 export async function fetchTicketmasterEvents({
@@ -305,6 +314,7 @@ export async function fetchTicketmasterEvents({
       lastSeenAtUtc: seenAt,
     } satisfies NormalizedEvent;
   });
+
 
 
 }

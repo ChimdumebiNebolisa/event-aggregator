@@ -1,7 +1,11 @@
-import NextAuth, { type NextAuthOptions, type Session } from "next-auth";
+import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-// import AzureADProvider from "next-auth/providers/azure-ad";
 import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaClient } from "@/app/generated/prisma";
+
+const prisma = new PrismaClient();
+
+const handler = NextAuth({
 import prisma from "@/lib/prisma";
 import type { JWT } from "next-auth/jwt";
 
@@ -136,78 +140,25 @@ async function refreshGoogleAccessToken(
 }
 
 export const authOptions: NextAuthOptions = {
+
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
+
+          scope: "openid email profile https://www.googleapis.com/auth/calendar.readonly",
+
           scope: GOOGLE_AUTHORIZATION_SCOPE,
+
         },
       },
     }),
-    // AzureADProvider({
-    //   clientId: process.env.AZURE_AD_CLIENT_ID ?? "",
-    //   clientSecret: process.env.AZURE_AD_CLIENT_SECRET ?? "",
-    //   tenantId: process.env.AZURE_AD_TENANT_ID ?? "",
-    // }),
   ],
-  callbacks: {
-    async jwt({ token, account }) {
-      let extendedToken: ExtendedToken = {
-        ...token,
-      };
-
-      if (account) {
-        const expiresAt = account.expires_at
-          ? account.expires_at * 1000
-          : account.expires_in
-            ? Date.now() + account.expires_in * 1000
-            : undefined;
-
-        extendedToken = {
-          ...extendedToken,
-          accessToken: account.access_token ?? extendedToken.accessToken,
-          refreshToken: account.refresh_token ?? extendedToken.refreshToken,
-          scope: account.scope ?? extendedToken.scope,
-          expiresAt,
-          providerAccountId:
-            account.providerAccountId ?? extendedToken.providerAccountId,
-          error: undefined,
-        };
-
-        if (account.providerAccountId) {
-          await persistAccountTokens(account.providerAccountId, extendedToken);
-        }
-      }
-
-      if (!extendedToken.expiresAt || Date.now() + 60_000 < extendedToken.expiresAt) {
-        return extendedToken;
-      }
-
-      return refreshGoogleAccessToken(extendedToken);
-    },
-    async session({ session, token }) {
-      const extendedToken = token as ExtendedToken;
-
-      const enrichedSession = {
-        ...session,
-        user: {
-          ...session.user,
-          id: extendedToken.sub,
-        },
-        accessToken: extendedToken.accessToken,
-        error: extendedToken.error,
-      } as Session & { accessToken?: string; error?: string };
-
-      return enrichedSession;
-    },
-  },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === "development",
-};
-
-const handler = NextAuth(authOptions);
+  session: { strategy: "jwt" },
+});
 
 export { handler as GET, handler as POST };
