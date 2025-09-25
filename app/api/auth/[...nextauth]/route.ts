@@ -8,6 +8,7 @@ import type { JWT } from "next-auth/jwt";
 const GOOGLE_AUTHORIZATION_SCOPE = [
 
 const GOOGLE_SCOPES = [
+
   "openid",
   "email",
   "profile",
